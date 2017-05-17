@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Recursive And Iterative Trees</title>
+    <meta charset="UTF-8">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+</head>
+
+<body>
+    <h1>TREE</h1>
+    <p>Copy example code and paste it to input field to print a tree in recursive and iterative modes</p>
+    <h5>Example code</h5>
+    <textarea style="width: 400px; height: 100px;" readonly>
+        { "name": "myProject", "children": [{ "name": "css", "children": [{ "name": "main.css" }, { "name": "menu.css" }] }, { "name": "fonts" }, { "name": "images", "children": [{ "name": "logo.png" }] }, { "name": "js", "children": [{ "name": "controllers", "children": [{ "name": "core", "children": [{ "name": "menu.js" }] }, { "name": "errors", "children": [{ "name": "error.js" }] }, { "name": "home", "children": [{ "name": "homePage.js" }] }] }, { "name": "main.js" }] }, { "name": "ressources" }] }
+    </textarea>
+    <h5>Paste code here</h5>
+    <textarea id="myTextarea" style="width: 400px; height: 100px;">
+    </textarea>
+    <br>
+    <button type="button" onclick="myFunction()">Just do it!</button>
+    <form>
+        <div id="recursiveTree" style="display: inline-block; width: 40%"></div>
+        <div id="iterativeTree" style="display: inline-block; width: 40%"></div>
+        <div id="error"></div>
+    </form>
+    <script type="text/javascript">
+    var treeModule = "";
+
+    function myFunction() {
+        treeModule = document.getElementById("myTextarea").value;
+
+        if (treeModule === "") {
+            console.log("error");
+            var error = document.createElement("div");
+            error.innerHTML = "Error, text area is empty";
+            document.getElementById("error").appendChild(error);
+        } else {
+            var tree = JSON.parse(treeModule);
+            console.log(tree);
+
+            function recursive(object, node) {
+                var list = document.createElement("ul");
+                for (let child of object.children) {
+                    var item = document.createElement("li");
+                    item.innerHTML = child.name;
+                    if (typeof(child.children) == "object") {
+                        recursive(child, item);
+                    }
+                    list.appendChild(item);
+                }
+                if (list.parentElement != null) {
+                    item.appendChild(list);
+                }
+                node.appendChild(list);
+            }
+
+            function iterative(object, node) {
+                var parentElement = document.createElement("ul");
+                var objectsToExamine = [{
+                    parent: parentElement,
+                    object: object
+                }];
+                while (objectsToExamine.length) {
+                    let currentItem = objectsToExamine.pop();
+
+                    var objectName = document.createElement("li");
+                    objectName.innerHTML = currentItem.object.name;
+                    currentItem.parent.appendChild(objectName);
+
+                    if (currentItem.object['children'] !== undefined) {
+                        var parentItem = document.createElement("ul");
+                        currentItem.parent.appendChild(parentItem);
+                        for (let i = currentItem.object['children'].length - 1; i >= 0; i--)
+                            objectsToExamine.push({
+                                parent: parentItem,
+                                object: currentItem.object['children'][i]
+                            });
+                    }
+                }
+                node.appendChild(parentElement);
+            }
+            var t0 = performance.now();
+            recursive({
+                children: [tree]
+            }, document.getElementById("recursiveTree"));
+            var t1 = performance.now();
+
+            var time = document.createElement("div");
+            time.innerHTML = "Recursive tree completed in " + (t1 - t0) + " milliseconds.";
+            document.getElementById("recursiveTree").appendChild(time);
+
+            t0 = performance.now();
+            iterative(tree, document.getElementById("iterativeTree"));
+            t1 = performance.now();
+
+            time = document.createElement("div");
+            time.innerHTML = "Iterative tree completed in " + (t1 - t0) + " milliseconds.";
+            document.getElementById("iterativeTree").appendChild(time);
+        }
+    }
+    </script>
+</body>
+
+</html>
